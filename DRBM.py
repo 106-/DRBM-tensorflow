@@ -29,9 +29,8 @@ class DRBM:
         return tf.expand_dims(self.b1, 1) + self.w2 + tf.expand_dims(tf.matmul(input, self.w1), 2)
 
     @tf.function
-    def probability(self, input, signal_value):
+    def probability(self, input):
         sig = self._signal_all(input)
-        signal_value(tf.reduce_max(sig))
         if self.enable_sparse:
             act = self._marginalize(sig, self.sparse)
         else:
@@ -45,52 +44,84 @@ class DRBM:
         single_prob = tf.reduce_sum(probs * labels, 1)
         return -tf.reduce_mean(tf.math.log(single_prob))
 
-    def fit(self, train_epoch, optimizer, train_ds, test_ds):
+    @tf.function
+    def _kl_divergence(self, gen_drbm, sampling_size=1000):
+        gen_data, gen_probs = gen_drbm.sampling(sampling_size)
+        probs = self.probability(gen_data)
+        klds = tf.reduce_sum( gen_probs * tf.math.log( gen_probs / probs ), axis=1)
+        return tf.reduce_mean(klds)
+
+    @tf.function
+    def sampling(self, sampling_size):
+        data = tf.random.normal((sampling_size, self.input_num), dtype=self.dtype)
+        return data, self.probability(data)
+
+    #@tf.function
+    def stick_break(self, sampling_size):
+        data, probs = self.sampling(sampling_size)
+        categories = tf.squeeze(tf.random.categorical(tf.math.log(probs), 1))
+        return data, categories
+
+    def fit_categorical(self, train_epoch, optimizer, train_ds, test_ds):
         train_loss = tf.keras.metrics.Mean(name='train_loss')
         train_accuracy = tf.keras.metrics.CategoricalAccuracy(name='train_accuracy')
         test_loss = tf.keras.metrics.Mean(name='test_loss')
         test_accuracy = tf.keras.metrics.CategoricalAccuracy(name='test_accuracy')
-        signal_value = tf.keras.metrics.Mean(name='signal')
+
+        @tf.function
+        def train(input, labels):
+            with tf.GradientTape() as tape:
+                tape.watch(self.params)
+                predict_probs = self.probability(input)
+                loss = self._negative_log_likelihood(predict_probs, labels)
+            grads = tape.gradient(loss, self.params)
+            optimizer.apply_gradients(zip(grads, self.params))
+            train_loss(loss)
+            train_accuracy(labels, predict_probs)
+        
+        @tf.function
+        def test(input, labels):
+            predict_probs = self.probability(input)
+            loss = self._negative_log_likelihood(predict_probs, labels)
+            test_loss(loss)
+            test_accuracy(labels, predict_probs)
 
         for epoch in range(train_epoch):
             for images, labels in train_ds:
-                self._train(images, labels, optimizer, train_loss, train_accuracy, signal_value)
-
+                train(images, labels)
             for test_images, test_labels in test_ds:
-                self._test(test_images, test_labels, test_loss, test_accuracy, signal_value)
+                test(test_images, test_labels)
 
-            template = 'Epoch {}, Loss: {}, Accuracy: {}, Test Loss: {}, Test Accuracy: {}, signal_max: {}'
-            print (template.format(epoch+1,
-                                    train_loss.result(),
-                                    train_accuracy.result()*100,
-                                    test_loss.result(),
-                                    test_accuracy.result()*100,
-                                    signal_value.result()))
-  
-            # 次のエポック用にメトリクスをリセット
+            template = 'Epoch {}, Loss: {}, Accuracy: {}, Test Loss: {}, Test Accuracy: {}'
+            print(template.format(epoch+1, train_loss.result(), train_accuracy.result()*100, test_loss.result(), test_accuracy.result()*100))
+
             train_loss.reset_states()
             train_accuracy.reset_states()
             test_loss.reset_states()
             test_accuracy.reset_states()
-            signal_value.reset_states()
+    
+    def fit_generative(self, train_epoch, optimizer, train_ds, gen_drbm):
+        train_loss = tf.keras.metrics.Mean(name='train_loss')
 
-    @tf.function
-    def _train(self, input, labels, opt, train_loss, train_accuracy, signal_value):
-        with tf.GradientTape() as tape:
-            tape.watch(self.params)
-            predict_probs = self.probability(input, signal_value)
-            loss = self._negative_log_likelihood(predict_probs, labels)
-        grads = tape.gradient(loss, self.params)
-        opt.apply_gradients(zip(grads, self.params))
-        train_loss(loss)
-        train_accuracy(labels, predict_probs)
+        @tf.function
+        def train(input, labels):
+            with tf.GradientTape() as tape:
+                tape.watch(self.params)
+                predict_probs = self.probability(input)
+                loss = self._negative_log_likelihood(predict_probs, labels)
+            grads = tape.gradient(loss, self.params)
+            optimizer.apply_gradients(zip(grads, self.params))
+            train_loss(loss)
+        
+        for epoch in range(train_epoch):
+            for images, labels in train_ds:
+                train(images, labels)
+            kld = self._kl_divergence(gen_drbm)
 
-    @tf.function
-    def _test(self, input, labels, test_loss, test_accuracy, signal_value):
-        predict_probs = self.probability(input, signal_value)
-        loss = self._negative_log_likelihood(predict_probs, labels)
-        test_loss(loss)
-        test_accuracy(labels, predict_probs)
+            template = 'Epoch {}, Loss: {}, KL-Divergence: {}'
+            print(template.format(epoch+1, train_loss.result(), kld))
+
+            train_loss.reset_states()
 
 def main():
     mnist = tf.keras.datasets.mnist
@@ -108,10 +139,27 @@ def main():
     test_ds = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(100)
 
     optimizer = tf.keras.optimizers.Adamax(learning_rate=0.002)
-    #drbm = DRBM(784, 200, 10, activation="original", dtype=tf.dtypes.float64)
-    drbm = DRBM(784, 200, 10, activation="continuous_sparse", dtype=tf.dtypes.float64)
-    #drbm = DRBM(784, 200, 10, activation="continuous", dtype=tf.dtypes.float64)
-    drbm.fit(500, optimizer, train_ds, test_ds)
+    #drbm = DRBM(784, 200, 10, activation="original", dtype=dtype)
+    drbm = DRBM(784, 200, 10, activation="continuous_sparse", dtype=dtype)
+    #drbm = DRBM(784, 200, 10, activation="continuous", dtype=dtype)
+    drbm.fit_categorical(500, optimizer, train_ds, test_ds)
+
+def main2():
+    import os
+    #os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+    dtype = tf.dtypes.float64
+
+    gen_drbm = DRBM(20, 100, 10, activation="continuous", dtype=dtype)
+    x_train, y_train = gen_drbm.stick_break(1000)
+    y_train = to_categorical(y_train, dtype=dtype.as_numpy_dtype())
+
+    train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(100)
+    optimizer = tf.keras.optimizers.Adamax(learning_rate=0.002)
+    
+    drbm = DRBM(20, 1000, 10, activation="continuous_sparse", dtype=dtype)
+    drbm.fit_generative(2000, optimizer, train_ds, gen_drbm)
 
 if __name__=='__main__':
-    main()
+    # main()
+    main2()

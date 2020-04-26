@@ -63,6 +63,5 @@ class continuous_sparse:
                 1/tf.tanh(x) - 1/x -1
             )
             grad_ret = dy * ret * r
-            tf.debugging.assert_all_finite(grad_ret, "_nexp_sinch_grad")
             return grad_ret
         return ret, grad
