@@ -6,7 +6,7 @@ import math
 class original:
     @staticmethod
     @tf.function
-    def activation(self, input):
+    def activation(input):
         return tf.nn.softplus(input)
 
 class continuous:
