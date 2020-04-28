@@ -1,10 +1,11 @@
 import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
+from mltools import LearningLog
 import numpy as np
 import hidden_marginalize
 
 class DRBM:
-    def __init__(self, input_num, hidden_num, output_num, activation="continuous", dtype=tf.dtypes.float32, initial_sparse=10.):
+    def __init__(self, input_num, hidden_num, output_num, activation="continuous", dtype="float32", initial_sparse=10.):
         self.input_num = input_num
         self.hidden_num = hidden_num
         self.output_num = output_num
@@ -62,7 +63,7 @@ class DRBM:
         categories = tf.squeeze(tf.random.categorical(tf.math.log(probs), 1))
         return data, categories
 
-    def fit_categorical(self, train_epoch, optimizer, train_ds, test_ds):
+    def fit_categorical(self, train_epoch, optimizer, train_ds, test_ds, learninglog):
         train_loss = tf.keras.metrics.Mean(name='train_loss')
         train_accuracy = tf.keras.metrics.CategoricalAccuracy(name='train_accuracy')
         test_loss = tf.keras.metrics.Mean(name='test_loss')
@@ -95,12 +96,17 @@ class DRBM:
             template = 'Epoch {}, Loss: {}, Accuracy: {}, Test Loss: {}, Test Accuracy: {}'
             print(template.format(epoch+1, train_loss.result(), train_accuracy.result()*100, test_loss.result(), test_accuracy.result()*100))
 
+            learninglog.make_log(epoch, "train-accuracy", float(train_accuracy.result()*100))
+            learninglog.make_log(epoch, "train-nloglikelihood", float(train_loss.result()))
+            learninglog.make_log(epoch, "test-accuracy", float(test_accuracy.result()*100))
+            learninglog.make_log(epoch, "test-nloglikelihood", float(test_loss.result()))
+
             train_loss.reset_states()
             train_accuracy.reset_states()
             test_loss.reset_states()
             test_accuracy.reset_states()
     
-    def fit_generative(self, train_epoch, optimizer, train_ds, gen_drbm):
+    def fit_generative(self, train_epoch, optimizer, train_ds, gen_drbm, learninglog):
         train_loss = tf.keras.metrics.Mean(name='train_loss')
 
         @tf.function
@@ -121,6 +127,9 @@ class DRBM:
             template = 'Epoch {}, Loss: {}, KL-Divergence: {}'
             print(template.format(epoch+1, train_loss.result(), kld))
 
+            learninglog.make_log(epoch, "kl-divergence", float(kld))
+            learninglog.make_log(epoch, "nloglikelihood", float(train_loss.result()))
+
             train_loss.reset_states()
 
 def main():
@@ -128,12 +137,14 @@ def main():
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     x_train, x_test = (x_train / 255.0), (x_test / 255.0)
 
-    dtype = tf.dtypes.float64
+    ll = LearningLog({})
 
-    x_train = x_train.reshape(-1, 784).astype(dtype.as_numpy_dtype())
-    x_test = x_test.reshape(-1, 784).astype(dtype.as_numpy_dtype())
-    y_train = to_categorical(y_train).astype(dtype.as_numpy_dtype())
-    y_test = to_categorical(y_test).astype(dtype.as_numpy_dtype())
+    dtype = "float64"
+
+    x_train = x_train.reshape(-1, 784).astype(dtype)
+    x_test = x_test.reshape(-1, 784).astype(dtype)
+    y_train = to_categorical(y_train).astype(dtype)
+    y_test = to_categorical(y_test).astype(dtype)
 
     train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).shuffle(10000).batch(100)
     test_ds = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(100)
@@ -142,24 +153,31 @@ def main():
     #drbm = DRBM(784, 200, 10, activation="original", dtype=dtype)
     drbm = DRBM(784, 200, 10, activation="continuous_sparse", dtype=dtype)
     #drbm = DRBM(784, 200, 10, activation="continuous", dtype=dtype)
-    drbm.fit_categorical(500, optimizer, train_ds, test_ds)
+    drbm.fit_categorical(2, optimizer, train_ds, test_ds, ll)
+
+    ll.save("./log.json")
+
 
 def main2():
     import os
     #os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-    dtype = tf.dtypes.float64
+    ll = LearningLog({})
+
+    dtype = "float64"
 
     gen_drbm = DRBM(20, 100, 10, activation="continuous", dtype=dtype)
     x_train, y_train = gen_drbm.stick_break(1000)
-    y_train = to_categorical(y_train, dtype=dtype.as_numpy_dtype())
+    y_train = to_categorical(y_train, dtype=dtype)
 
     train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(100)
     optimizer = tf.keras.optimizers.Adamax(learning_rate=0.002)
     
-    drbm = DRBM(20, 1000, 10, activation="continuous_sparse", dtype=dtype)
-    drbm.fit_generative(2000, optimizer, train_ds, gen_drbm)
+    drbm = DRBM(20, 100, 10, activation="continuous_sparse", dtype=dtype)
+    drbm.fit_generative(100, optimizer, train_ds, gen_drbm, ll)
+
+    ll.save("./log.json")
 
 if __name__=='__main__':
-    # main()
-    main2()
+    main()
+    # main2()
