@@ -1,7 +1,4 @@
 import tensorflow as tf
-from tensorflow.keras.utils import to_categorical
-from mltools import LearningLog
-import numpy as np
 import hidden_marginalize
 
 class DRBM:
@@ -131,53 +128,3 @@ class DRBM:
             learninglog.make_log(epoch, "nloglikelihood", float(train_loss.result()))
 
             train_loss.reset_states()
-
-def main():
-    mnist = tf.keras.datasets.mnist
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    x_train, x_test = (x_train / 255.0), (x_test / 255.0)
-
-    ll = LearningLog({})
-
-    dtype = "float64"
-
-    x_train = x_train.reshape(-1, 784).astype(dtype)
-    x_test = x_test.reshape(-1, 784).astype(dtype)
-    y_train = to_categorical(y_train).astype(dtype)
-    y_test = to_categorical(y_test).astype(dtype)
-
-    train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).shuffle(10000).batch(100)
-    test_ds = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(100)
-
-    optimizer = tf.keras.optimizers.Adamax(learning_rate=0.002)
-    #drbm = DRBM(784, 200, 10, activation="original", dtype=dtype)
-    drbm = DRBM(784, 200, 10, activation="continuous_sparse", dtype=dtype)
-    #drbm = DRBM(784, 200, 10, activation="continuous", dtype=dtype)
-    drbm.fit_categorical(2, optimizer, train_ds, test_ds, ll)
-
-    ll.save("./log.json")
-
-
-def main2():
-    import os
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
-    ll = LearningLog({})
-
-    dtype = "float64"
-
-    gen_drbm = DRBM(20, 100, 10, activation="continuous", dtype=dtype)
-    x_train, y_train = gen_drbm.stick_break(1000)
-    y_train = to_categorical(y_train, dtype=dtype)
-
-    train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(100)
-    optimizer = tf.keras.optimizers.Adamax(learning_rate=0.002)
-    
-    drbm = DRBM(20, 100, 10, activation="continuous_sparse", dtype=dtype)
-    drbm.fit_generative(100, optimizer, train_ds, gen_drbm, ll)
-
-    ll.save("./log.json")
-
-if __name__=='__main__':
-    main()
-    # main2()
