@@ -21,7 +21,7 @@ ll = LearningLog(config)
 
 dtype = config["dtype"]
 
-gen_drbm = DRBM(*config["generative-layers"], **config["generative-args"], dtype=dtype)
+gen_drbm = DRBM(*config["generative-layers"], **config["generative-args"], dtype=dtype, random_bias=True)
 x_train, y_train = gen_drbm.stick_break(1000)
 y_train = to_categorical(y_train, dtype=dtype)
 

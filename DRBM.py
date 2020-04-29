@@ -3,7 +3,7 @@ import hidden_marginalize
 import json
 
 class DRBM:
-    def __init__(self, input_num, hidden_num, output_num, activation="continuous", dtype="float32", initial_sparse=10.):
+    def __init__(self, input_num, hidden_num, output_num, activation="continuous", dtype="float32", initial_sparse=10., random_bias=False):
         self.input_num = input_num
         self.hidden_num = hidden_num
         self.output_num = output_num
@@ -11,8 +11,12 @@ class DRBM:
 
         self.w1 = tf.Variable( tf.keras.initializers.GlorotUniform()((input_num, hidden_num), dtype=self.dtype), name="w1" )
         self.w2 = tf.Variable( tf.keras.initializers.GlorotUniform()((hidden_num, output_num), dtype=self.dtype), name="w2" )
-        self.b1 = tf.Variable( tf.zeros((hidden_num), dtype=self.dtype), name="b1" )
-        self.b2 = tf.Variable( tf.zeros((output_num), dtype=self.dtype), name="b2" )
+        if random_bias:
+            self.b1 = tf.Variable( tf.random.normal([hidden_num], dtype=self.dtype), name="b1" )
+            self.b2 = tf.Variable( tf.random.normal([output_num], dtype=self.dtype), name="b2" )
+        else:
+            self.b1 = tf.Variable( tf.zeros((hidden_num), dtype=self.dtype), name="b1" )
+            self.b2 = tf.Variable( tf.zeros((output_num), dtype=self.dtype), name="b2" )
         self.params = [self.b1, self.b2, self.w1, self.w2]
 
         self.enable_sparse = "sparse" in activation
