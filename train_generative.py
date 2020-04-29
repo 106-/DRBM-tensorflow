@@ -22,7 +22,7 @@ ll = LearningLog(config)
 dtype = config["dtype"]
 
 gen_drbm = DRBM(*config["generative-layers"], **config["generative-args"], dtype=dtype, random_bias=True)
-x_train, y_train = gen_drbm.stick_break(1000)
+x_train, y_train = gen_drbm.stick_break(500)
 y_train = to_categorical(y_train, dtype=dtype)
 
 train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(config["minibatch-size"])
