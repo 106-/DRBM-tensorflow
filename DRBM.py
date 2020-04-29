@@ -1,5 +1,6 @@
 import tensorflow as tf
 import hidden_marginalize
+import json
 
 class DRBM:
     def __init__(self, input_num, hidden_num, output_num, activation="continuous", dtype="float32", initial_sparse=10.):
@@ -19,6 +20,7 @@ class DRBM:
             self.sparse = tf.Variable( tf.cast(tf.fill([hidden_num], initial_sparse), dtype=self.dtype), name="sparse" )
             self.params.append(self.sparse)
         self._marginalize = getattr(hidden_marginalize, activation).activation
+        self.activation = activation
 
     # input: (N, i)
     # return (N, j, k)
@@ -128,3 +130,16 @@ class DRBM:
             learninglog.make_log(epoch, "nloglikelihood", float(train_loss.result()))
 
             train_loss.reset_states()
+
+    def save(self, filename):
+        data_names = ["input_num", "hidden_num", "output_num", "dtype", "activation", "enable_sparse"]
+        param_names = ["b1", "b2", "w1", "w2"]
+        if self.enable_sparse:
+            param_names.append("sparse")
+        data = {}
+        for i in data_names:
+            data[i] = getattr(self, i)
+        data["params"] = {}
+        for i in param_names:
+            data["params"][i] = getattr(self, i).numpy().tolist()
+        json.dump(data, open(filename, "w+"), indent=2)

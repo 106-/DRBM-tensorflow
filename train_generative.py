@@ -45,3 +45,5 @@ filename = "_".join(filename)
 
 filepath = os.path.join(args.output_directory, filename%"log")
 ll.save(filepath)
+
+drbm.save(filename%"model")
