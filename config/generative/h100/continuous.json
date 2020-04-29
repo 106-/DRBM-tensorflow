@@ -1,0 +1,12 @@
+{
+    "generative-layers": [20, 100, 10],
+    "generative-args": {
+        "activation": "continuous"
+    },
+    "training-layers": [20, 100, 10],
+    "training-args": {
+        "activation": "continuous"
+    },
+    "dtype": "float64",
+    "minibatch-size": 100
+}
