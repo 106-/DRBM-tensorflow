@@ -43,7 +43,7 @@ if args.filename_suffix is not None:
 filename.append("%s.json")
 filename = "_".join(filename)
 
-filepath = os.path.join(args.output_directory, filename%"log")
-ll.save(filepath)
+filepath = os.path.join(args.output_directory, filename)
+ll.save(filepath%"log")
 
-drbm.save(filename%"model")
+drbm.save(filepath%"model")
