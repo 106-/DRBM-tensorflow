@@ -1,5 +1,5 @@
 {
-    "generative-layers": [20, 100, 10],
+    "generative-layers": [20, 50, 10],
     "generative-args": {
         "activation": "continuous"
     },
