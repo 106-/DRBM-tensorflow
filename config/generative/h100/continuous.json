@@ -8,5 +8,5 @@
         "activation": "continuous"
     },
     "dtype": "float64",
-    "minibatch-size": 100
+    "minibatch-size": 50
 }
