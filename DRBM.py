@@ -79,6 +79,8 @@ class DRBM:
                 predict_probs = self.probability(input)
                 loss = self._negative_log_likelihood(predict_probs, labels)
             grads = tape.gradient(loss, self.params)
+            for i,g in enumerate(grads):
+                grads[i] /= float(minibatch_size)
             optimizer.apply_gradients(zip(grads, self.params))
             train_loss(loss)
             train_accuracy(labels, predict_probs)
@@ -109,7 +111,7 @@ class DRBM:
             test_loss.reset_states()
             test_accuracy.reset_states()
     
-    def fit_generative(self, train_epoch, optimizer, train_ds, gen_drbm, learninglog):
+    def fit_generative(self, train_epoch, data_size, minibatch_size, optimizer, train_ds, gen_drbm, learninglog):
         train_loss = tf.keras.metrics.Mean(name='train_loss')
 
         @tf.function
@@ -119,11 +121,13 @@ class DRBM:
                 predict_probs = self.probability(input)
                 loss = self._negative_log_likelihood(predict_probs, labels)
             grads = tape.gradient(loss, self.params)
+            for i,g in enumerate(grads):
+                grads[i] /= float(minibatch_size)
             optimizer.apply_gradients(zip(grads, self.params))
             train_loss(loss)
         
         for epoch in range(train_epoch):
-            for images, labels in train_ds:
+            for images, labels in train_ds.shuffle(data_size).batch(minibatch_size):
                 train(images, labels)
             kld = self._kl_divergence(gen_drbm)
 

@@ -22,14 +22,14 @@ ll = LearningLog(config)
 dtype = config["dtype"]
 
 gen_drbm = DRBM(*config["generative-layers"], **config["generative-args"], dtype=dtype, random_bias=True)
-x_train, y_train = gen_drbm.stick_break(500)
+x_train, y_train = gen_drbm.stick_break(config["datasize"])
 y_train = to_categorical(y_train, dtype=dtype)
 
-train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(config["minibatch-size"])
+train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train))
 optimizer = tf.keras.optimizers.Adamax(learning_rate=0.002)
 
 drbm = DRBM(*config["training-layers"], **config["training-args"], dtype=dtype)
-drbm.fit_generative(args.learning_epoch, optimizer, train_ds, gen_drbm, ll)
+drbm.fit_generative(args.learning_epoch, config["datasize"], config["minibatch-size"], optimizer, train_ds, gen_drbm, ll)
 
 now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 filename = [

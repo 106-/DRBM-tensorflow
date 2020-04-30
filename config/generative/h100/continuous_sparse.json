@@ -8,5 +8,6 @@
         "activation": "continuous_sparse"
     },
     "dtype": "float64",
-    "minibatch-size": 50
+    "minibatch-size": 50,
+    "datasize": 500
 }
