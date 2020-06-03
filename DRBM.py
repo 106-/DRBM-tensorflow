@@ -30,7 +30,7 @@ class DRBM:
     # return (N, j, k)
     @tf.function
     def _signal_all(self, input):
-        return tf.expand_dims(self.b1, 1) + self.w2 + tf.expand_dims(tf.matmul(input, self.w1), 2)
+        return tf.expand_dims(tf.matmul(input, self.w1) + self.b1, 2) + self.w2
 
     @tf.function
     def probability(self, input):
@@ -40,9 +40,8 @@ class DRBM:
         else:
             act = self._marginalize(sig)
         energies = self.b2 + tf.reduce_sum(act, 1)
-        max_energies = tf.reduce_max(energies, axis=1, keepdims=True)
-        return tf.nn.softmax(energies-max_energies)
-    
+        return tf.nn.softmax(energies)
+
     @tf.function
     def _negative_log_likelihood(self, probs, labels):
         single_prob = tf.reduce_sum(probs * labels, 1)
@@ -66,7 +65,7 @@ class DRBM:
         categories = tf.squeeze(tf.random.categorical(tf.math.log(probs), 1))
         return data, categories
 
-    def fit_categorical(self, train_epoch, optimizer, train_ds, test_ds, learninglog):
+    def fit_categorical(self, train_epoch, data_size, minibatch_size, optimizer, train_ds, test_ds, learninglog):
         train_loss = tf.keras.metrics.Mean(name='train_loss')
         train_accuracy = tf.keras.metrics.CategoricalAccuracy(name='train_accuracy')
         test_loss = tf.keras.metrics.Mean(name='test_loss')
@@ -79,8 +78,6 @@ class DRBM:
                 predict_probs = self.probability(input)
                 loss = self._negative_log_likelihood(predict_probs, labels)
             grads = tape.gradient(loss, self.params)
-            for i,g in enumerate(grads):
-                grads[i] /= float(minibatch_size)
             optimizer.apply_gradients(zip(grads, self.params))
             train_loss(loss)
             train_accuracy(labels, predict_probs)
@@ -93,7 +90,7 @@ class DRBM:
             test_accuracy(labels, predict_probs)
 
         for epoch in range(train_epoch):
-            for images, labels in train_ds:
+            for images, labels in train_ds.shuffle(data_size).batch(minibatch_size):
                 train(images, labels)
             for test_images, test_labels in test_ds:
                 test(test_images, test_labels)
@@ -121,8 +118,6 @@ class DRBM:
                 predict_probs = self.probability(input)
                 loss = self._negative_log_likelihood(predict_probs, labels)
             grads = tape.gradient(loss, self.params)
-            for i,g in enumerate(grads):
-                grads[i] /= float(minibatch_size)
             optimizer.apply_gradients(zip(grads, self.params))
             train_loss(loss)
         
@@ -151,3 +146,17 @@ class DRBM:
         for i in param_names:
             data["params"][i] = getattr(self, i).numpy().tolist()
         json.dump(data, open(filename, "w+"), indent=2)
+
+    @staticmethod
+    def load(filename):
+        data = json.load(open(filename, "r"))
+        enable_sparse = "sparse" in data["params"]
+        drbm = DRBM(data["input_num"], data["hidden_num"], data["output_num"], data["activation"], data["dtype"])
+        for i in ["b1", "b2", "w1", "w2"]:
+            setattr(drbm, i, tf.Variable(data["params"][i], dtype=data["dtype"], name=i))
+        drbm.params = [drbm.b1, drbm.b2, drbm.w1, drbm.w2]
+
+        if enable_sparse:
+            drbm.sparse = tf.Variable(data["params"]["sparse"], dtype=data["dtype"], name="sparse")
+            drbm.params.append(drbm.sparse)
+        return drbm
