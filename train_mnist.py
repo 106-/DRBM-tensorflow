@@ -30,12 +30,12 @@ x_test = x_test.reshape(-1, 784).astype(dtype)
 y_train = to_categorical(y_train).astype(dtype)
 y_test = to_categorical(y_test).astype(dtype)
 
-train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).shuffle(10000).batch(config["minibatch-size"])
+train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train))
 test_ds = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(100)
 
-optimizer = tf.keras.optimizers.Adamax(learning_rate=0.002)
+optimizer = tf.keras.optimizers.Adamax()
 drbm = DRBM(*config["training-layers"], **config["training-args"], dtype=dtype)
-drbm.fit_categorical(args.learning_epoch, optimizer, train_ds, test_ds, ll)
+drbm.fit_categorical(args.learning_epoch, 60000, config["minibatch-size"], optimizer, train_ds, test_ds, ll)
 
 now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 filename = [

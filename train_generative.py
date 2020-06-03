@@ -26,7 +26,7 @@ x_train, y_train = gen_drbm.stick_break(config["datasize"])
 y_train = to_categorical(y_train, dtype=dtype)
 
 train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-optimizer = tf.keras.optimizers.Adamax(learning_rate=0.002)
+optimizer = tf.keras.optimizers.Adamax()
 
 drbm = DRBM(*config["training-layers"], **config["training-args"], dtype=dtype)
 drbm.fit_generative(args.learning_epoch, config["datasize"], config["minibatch-size"], optimizer, train_ds, gen_drbm, ll)
