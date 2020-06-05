@@ -33,7 +33,7 @@ y_test = to_categorical(y_test).astype(dtype)
 train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train))
 test_ds = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(100)
 
-optimizer = tf.keras.optimizers.Adamax()
+optimizer = tf.keras.optimizers.Adamax(learning_rate=0.002, epsilon=1e-8)
 drbm = DRBM(*config["training-layers"], **config["training-args"], dtype=dtype)
 drbm.fit_categorical(args.learning_epoch, 60000, config["minibatch-size"], optimizer, train_ds, test_ds, ll)
 
