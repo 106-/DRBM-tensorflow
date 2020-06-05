@@ -51,8 +51,8 @@ class DRBM:
     def _kl_divergence(self, gen_drbm, sampling_size=1000):
         gen_data, gen_probs = gen_drbm.sampling(sampling_size)
         probs = self.probability(gen_data)
-        klds = tf.reduce_sum( gen_probs * tf.math.log( gen_probs / probs ), axis=1)
-        return tf.reduce_mean(klds)
+        kld = tf.reduce_mean( gen_probs * tf.math.log( gen_probs / probs ))
+        return klds
 
     @tf.function
     def sampling(self, sampling_size):
