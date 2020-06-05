@@ -52,7 +52,7 @@ class DRBM:
         gen_data, gen_probs = gen_drbm.sampling(sampling_size)
         probs = self.probability(gen_data)
         kld = tf.reduce_mean( gen_probs * tf.math.log( gen_probs / probs ))
-        return klds
+        return kld
 
     @tf.function
     def sampling(self, sampling_size):
