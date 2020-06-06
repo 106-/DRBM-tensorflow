@@ -1,7 +1,7 @@
 {
-    "training-layers": [784, 100, 10],
+    "training-layers": [784, 50, 10],
     "training-args": {
-        "activation": "continuous_sparse"
+        "activation": "double"
     },
     "dtype": "float64",
     "minibatch-size": 100,
