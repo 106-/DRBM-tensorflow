@@ -98,9 +98,9 @@ class DRBM:
             template = 'Epoch {}, Loss: {}, Accuracy: {}, Test Loss: {}, Test Accuracy: {}'
             print(template.format(epoch+1, train_loss.result(), train_accuracy.result()*100, test_loss.result(), test_accuracy.result()*100))
 
-            learninglog.make_log(epoch, "train-accuracy", float(train_accuracy.result()*100))
+            learninglog.make_log(epoch, "train-error", float((1.-train_accuracy.result())))
             learninglog.make_log(epoch, "train-nloglikelihood", float(train_loss.result()))
-            learninglog.make_log(epoch, "test-accuracy", float(test_accuracy.result()*100))
+            learninglog.make_log(epoch, "test-error", float(1.-test_accuracy.result()))
             learninglog.make_log(epoch, "test-nloglikelihood", float(test_loss.result()))
 
             train_loss.reset_states()
