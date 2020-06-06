@@ -2,6 +2,7 @@
 
 import json
 import argparse
+import numpy as np
 import tensorflow as tf
 import datetime
 import os
@@ -21,12 +22,23 @@ ll = LearningLog(config)
 
 mnist = tf.keras.datasets.mnist
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
-x_train, x_test = (x_train / 255.0), (x_test / 255.0)
 
 dtype = config["dtype"]
+x_train = x_train.astype(dtype)
+x_test = x_test.astype(dtype)
 
-x_train = x_train.reshape(-1, 784).astype(dtype)
-x_test = x_test.reshape(-1, 784).astype(dtype)
+if "learning_data_limit" in config:
+    idx = np.random.choice(np.arange(0, len(x_train)), size=len(x_train), replace=False)
+    x_train = x_train[idx[0:config["learning_data_limit"]]]
+    y_train = y_train[idx[0:config["learning_data_limit"]]]
+
+if "test_noise_std" in config:
+    x_test = x_test + np.random.normal(0, config["test_noise_std"], x_test.shape)
+
+x_train, x_test = (x_train / 255.0), (x_test / 255.0)
+
+x_train = x_train.reshape(-1, 784)
+x_test = x_test.reshape(-1, 784)
 y_train = to_categorical(y_train).astype(dtype)
 y_test = to_categorical(y_test).astype(dtype)
 
@@ -35,7 +47,7 @@ test_ds = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(100)
 
 optimizer = tf.keras.optimizers.Adamax(learning_rate=0.002, epsilon=1e-8)
 drbm = DRBM(*config["training-layers"], **config["training-args"], dtype=dtype)
-drbm.fit_categorical(args.learning_epoch, 60000, config["minibatch-size"], optimizer, train_ds, test_ds, ll)
+drbm.fit_categorical(args.learning_epoch, len(x_train), config["minibatch-size"], optimizer, train_ds, test_ds, ll)
 
 now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 filename = [
