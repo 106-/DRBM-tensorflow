@@ -1,0 +1,10 @@
+{
+    "training-layers": [784, 50, 10],
+    "training-args": {
+        "activation": "triple"
+    },
+    "dtype": "float64",
+    "minibatch-size": 100,
+    "learning_data_limit": 1000,
+    "test_noise_std": 250
+}

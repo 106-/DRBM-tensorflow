@@ -12,23 +12,16 @@ class original:
 class double:
     @staticmethod
     @tf.function
-    @tf.custom_gradient
     def activation(input):
-        approx_factors = np.array([0., -1/12, 0., 1/2, 0., math.log(2.)]).astype(input.dtype.as_numpy_dtype())
-        approx_factors_grad = np.array([2/15, 0., -1/3, 0., 1., 0.]).astype(input.dtype.as_numpy_dtype())
-        ret = tf.where(
-            tf.math.abs(input) < 1e-3,
-            tf.math.polyval(approx_factors, input),
-            tf.math.log(2*tf.math.cosh(input))
-        )
-        @tf.function
-        def grad(dy):
-            return dy * tf.where(
-                tf.math.abs(input) < 1e-3,
-                tf.math.polyval(approx_factors_grad, input),
-                tf.math.tanh(input)
-            )
-        return ret, grad
+        input = tf.abs(input)
+        return input + tf.math.log1p(tf.exp(-2.*input))
+
+class triple:
+    @staticmethod
+    @tf.function
+    def activation(input):
+        input = tf.abs(input)
+        return input + tf.math.log(1 + tf.exp(-input) + tf.exp(-2.*input))
 
 class continuous:
     @staticmethod
