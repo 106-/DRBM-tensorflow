@@ -1,0 +1,13 @@
+{
+    "generative-layers": [20, 50, 10],
+    "generative-args": {
+        "activation": "continuous"
+    },
+    "training-layers": [20, 50, 10],
+    "training-args": {
+        "activation": "triple_sparse"
+    },
+    "dtype": "float64",
+    "minibatch-size": 50,
+    "datasize": 500
+}

@@ -23,6 +23,14 @@ class triple:
         input = tf.abs(input)
         return input + tf.math.log(1 + tf.exp(-input) + tf.exp(-2.*input))
 
+class triple_sparse:
+    @staticmethod
+    @tf.function
+    def activation(input, sparse):
+        sparse = tf.nn.softplus( tf.expand_dims(sparse, 1) )
+        input = tf.abs(input)
+        return input + tf.math.log( tf.exp(-input) + tf.exp(-sparse)*(1.+tf.exp(-2.*input)) )
+
 class continuous:
     @staticmethod
     @tf.function
