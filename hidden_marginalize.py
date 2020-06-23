@@ -87,3 +87,9 @@ class continuous_sparse:
             grad_ret = dy * ret * r
             return grad_ret
         return ret, grad
+
+class esrbm:
+    @staticmethod
+    @tf.function
+    def activation(input, sparse=1.0):
+        return tf.nn.softplus(input - sparse)
