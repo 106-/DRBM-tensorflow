@@ -1,0 +1,8 @@
+{
+    "training-layers": [147, 300, 9],
+    "training-args": {
+        "activation": "esrbm"
+    },
+    "dtype": "float64",
+    "minibatch-size": 100
+}
