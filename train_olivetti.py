@@ -9,7 +9,7 @@ import os
 from DRBM import DRBM
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
-from sklearn.datasets import fetch_covtype
+from sklearn.datasets import fetch_olivetti_faces
 from mltools import LearningLog
 
 parser = argparse.ArgumentParser("DRBM learning script.", add_help=False)
@@ -22,11 +22,9 @@ args = parser.parse_args()
 config = json.load(open(args.learning_config, "r"))
 ll = LearningLog(config)
 
-y, x = np.split(np.loadtxt("./urban.txt", delimiter=","), [1], 1)
-
-x_mean = np.mean(x, 0)
-x_std = np.std(x, 0)
-x = (x - x_mean) / x_std
+data = fetch_olivetti_faces()
+y = data["target"]
+x = data["data"]
 
 y = to_categorical(y)
 
@@ -34,7 +32,7 @@ dtype = config["dtype"]
 x = x.astype(dtype)
 y = y.astype(dtype)
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, shuffle=False)
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, shuffle=True)
 
 if "learning_data_limit" in config:
     idx = np.random.choice(np.arange(0, len(x_train)), size=len(x_train), replace=False)
@@ -51,7 +49,7 @@ drbm.fit_categorical(args.learning_epoch, len(x_train), config["minibatch-size"]
 now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 filename = [
     now,
-    "mnist",
+    "olivetti",
     "h"+str(config["training-layers"][1]),
     config["training-args"]["activation"]
 ]

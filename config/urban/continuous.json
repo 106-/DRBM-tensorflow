@@ -1,5 +1,5 @@
 {
-    "training-layers": [147, 300, 9],
+    "training-layers": [147, 500, 9],
     "training-args": {
         "activation": "continuous"
     },

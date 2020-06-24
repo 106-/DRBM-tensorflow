@@ -10,5 +10,5 @@ mkdir -p $DIR
 
 for i in `seq $1`
 do
-    ./train_urban.py ./config/urban/continuous_sparse.json 1000 -d $DIR
+    ./train_urban.py ./config/urban/continuous_sparse.json 200 -d $DIR
 done
