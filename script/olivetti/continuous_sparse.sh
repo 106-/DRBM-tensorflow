@@ -10,5 +10,5 @@ mkdir -p $DIR
 
 for i in `seq $1`
 do
-    ./train_olivetti.py ./config/olivetti/continuous_sparse.json 200 -d $DIR
+    ./train_olivetti.py ./config/olivetti/continuous_sparse.json 100 -d $DIR
 done
