@@ -10,5 +10,5 @@ mkdir -p $DIR
 
 for i in `seq $1`
 do
-    ./train_generative.py ./config/histogram/triple_mnist/h100.json 3000 -d $DIR
+    ./train_mnist.py ./config/histogram/triple_mnist/h100.json 3000 -d $DIR -p
 done
