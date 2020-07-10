@@ -15,6 +15,7 @@ parser.add_argument("learning_config", action="store", type=str, help="path of l
 parser.add_argument("learning_epoch", action="store", type=int, help="numbers of epochs.")
 parser.add_argument("-d", "--output_directory", action="store", type=str, default="./results/", help="directory to output parameter & log")
 parser.add_argument("-s", "--filename_suffix", action="store", type=str, default=None, help="filename suffix")
+parser.add_argument("-p", "--save_parameters", action="store_true", help="save model parameters")
 args = parser.parse_args()
 
 config = json.load(open(args.learning_config, "r"))
@@ -61,5 +62,7 @@ if args.filename_suffix is not None:
 filename.append("%s.json")
 filename = "_".join(filename)
 
-filepath = os.path.join(args.output_directory, filename%"log")
-ll.save(filepath)
+filepath = os.path.join(args.output_directory, filename)
+ll.save(filepath%"log")
+if args.save_parameters:
+    drbm.save(filepath%"model")

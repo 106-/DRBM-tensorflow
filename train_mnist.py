@@ -63,6 +63,6 @@ filename.append("%s.json")
 filename = "_".join(filename)
 
 filepath = os.path.join(args.output_directory, filename)
-
 ll.save(filepath%"log")
-drbm.save(filepath%"model")
+if args.save_parameters:
+    drbm.save(filepath%"model")
