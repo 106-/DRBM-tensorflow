@@ -3,7 +3,7 @@ DRBM-tensorflow
 
 TensorFlowによる制限ボルツマンマシン分類器(Discriminative-RBM; DRBM a.k.a. Classification RBM; ClassRBM)の実装.
 
-implementation of a discriminative restricted Boltzmann machine(DRBM or Classification RBM; Class RBM) using TensorFlow.
+A implementation of discriminative restricted Boltzmann machine(DRBM or Classification RBM; Class RBM) using TensorFlow.
 
 # Setup & Module Installation
 _requires Python 3.x_
