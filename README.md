@@ -3,7 +3,7 @@ DRBM-tensorflow
 
 TensorFlowによる制限ボルツマンマシン分類器(Discriminative-RBM; DRBM a.k.a. Classification RBM; ClassRBM)の実装.
 
-A implementation of discriminative restricted Boltzmann machine(DRBM or Classification RBM; Class RBM) using TensorFlow.
+An implementation of discriminative restricted Boltzmann machine (DRBM or Classification RBM; Class RBM) using TensorFlow.
 
 # Setup & Module Installation
 _requires Python 3.x_
@@ -21,17 +21,17 @@ $ pip install -r ./requirements.txt
 ```
 
 # Basic Usage
-This program has two running mode: learning artificial data or learning categorical data.
+This program has two running modes: learning artificial data or learning categorical data.
 
 ## Learning Artificial Data
 
-In this mode, learning model will train artificial data sampled from randomely generated generative model.
-This is not practical, but this is useful for measuring generalization error between generative model and training model directly.
-This program will calculate Kullback-Leibler Divergence (KLD) as generalization error between generative and learning model per one epoch.
+In this mode, the learning model will train on artificial data sampled from a randomly generated generative model.
+This is not practical, but it is useful for directly measuring the generalization error between the generative model and the training model.
+This program will calculate the Kullback-Leibler Divergence (KLD) as the generalization error between the generative and learning models per epoch.
 
 ### Configuration File
-Configuration file must describe;
-- Layers of generative / training model (input, hidden and output layers, respectively.).
+The configuration file must describe:
+- Layers of the generative/training model (input, hidden, and output layers, respectively).
 - Activation function of hidden layer (See [below](#-Activation-Function-of-Hidden-Layer)).
 - dtype ([datatype of Tensorflow](https://www.tensorflow.org/api_docs/python/tf/dtypes/DType)).
 - Size of minibatch.
@@ -59,24 +59,24 @@ $ ./train_generative.py (path to setting file) (learning epoch)
 There are some examples of configuration files in `./config/generative`.
 
 ## Learning Categorical Data
-In this mode, learning model will train classification problem.
+In this mode, the learning model will train on a classification problem.
 This mode is used for training real-world data.
-For each epoch, this program will calcurate the misclassification rate and negative log likelihood of training and test data.
+For each epoch, this program will calculate the misclassification rate and negative log-likelihood of the training and test data.
 
-`train_mnist.py`, `train_fashion_mnist.py`, `train_olivetti.py` and `train_urban.py` are either the training data is included in module or in repository and you can run directly.
+`train_mnist.py`, `train_fashion_mnist.py`, `train_olivetti.py`, and `train_urban.py` include training data either in the module or in the repository, and you can run them directly.
 
-`train_cifar.py` is not include training data, so you need to prepare it yourself.
+`train_cifar.py` does not include training data, so you need to prepare it yourself.
 
 ### Configuration File
-Configuration file describes;
-- Layers of training model (input, hidden and output layers, respectively.).
+The configuration file describes:
+- Layers of the training model (input, hidden, and output layers, respectively).
 - Activation function of hidden layer (See [below](#-Activation-Function-of-Hidden-Layer)).
 - dtype ([datatype of Tensorflow](https://www.tensorflow.org/api_docs/python/tf/dtypes/DType)).
 - Size of minibatch.
 - Size of learning data.
 - Variance of white noise to be added to the test data (optional).
 
-In addition to the learning artificial data configuration file, you can set the variance of the white noise to be added to the test data.
+In addition to the artificial data learning configuration file, you can set the variance of white noise to be added to the test data.
 
 ```json
 {
@@ -100,7 +100,7 @@ There are some examples of configuration files in `./config/mnist`.
 In the original paper[2], the hidden layer takes 0 or 1, so the activation function will be a softplus function.
 However, in my research, I have applied multi-valued hidden nodes[3] and sparse regularization.
 This can be easily changed by changing the `activation` setting in the configuration file.
-And they are defined in `hidden_margianlize.py`.
+These are defined in `hidden_marginalize.py`.
 The following is a table of hidden layers and its settings.
 
 |        `activation` |          Hidden variables |                  Note |
