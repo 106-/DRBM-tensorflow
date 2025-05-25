@@ -1,7 +1,9 @@
 
-import tensorflow as tf
-import numpy as np
 import math
+
+import numpy as np
+import tensorflow as tf
+
 
 class original:
     @staticmethod

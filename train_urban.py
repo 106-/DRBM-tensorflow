@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
-import json
 import argparse
+import datetime
+import json
+import os
+
 import numpy as np
 import tensorflow as tf
-import datetime
-import os
-from DRBM import DRBM
-from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
-from sklearn.datasets import fetch_covtype
+from tensorflow.keras.utils import to_categorical
+
+from DRBM import DRBM
 from mltools import LearningLog
 
 parser = argparse.ArgumentParser("DRBM learning script.", add_help=False)

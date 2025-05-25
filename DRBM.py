@@ -1,6 +1,9 @@
-import tensorflow as tf
-import hidden_marginalize
 import json
+
+import tensorflow as tf
+
+import hidden_marginalize
+
 
 class DRBM:
     def __init__(self, input_num, hidden_num, output_num, activation="continuous", dtype="float32", initial_sparse=10., random_bias=False):
