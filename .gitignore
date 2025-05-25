@@ -2,4 +2,3 @@
 *.pyc
 .python-version
 .venv/
-results/*.json
