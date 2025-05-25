@@ -6,7 +6,7 @@ TensorFlowによる制限ボルツマンマシン分類器(Discriminative-RBM; D
 An implementation of discriminative restricted Boltzmann machine (DRBM or Classification RBM; Class RBM) using TensorFlow.
 
 # Setup & Module Installation
-_requires Python 3.x_
+_requires Python 3.12_
 ```
 $ git clone https://github.com/106-/DRBM-tensorflow.git
 $ cd DRBM-tensorflow

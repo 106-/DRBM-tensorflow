@@ -4,7 +4,7 @@ DRBM-tensorflow
 TensorFlowによる制限ボルツマンマシン分類器(Discriminative-RBM; DRBM a.k.a. Classification RBM; ClassRBM)の実装.
 
 # セットアップ & モジュールインストール
-_Python 3.x が必要_
+_Python 3.12 くらいが必要_
 ```
 $ git clone https://github.com/106-/DRBM-tensorflow.git
 $ cd DRBM-tensorflow
