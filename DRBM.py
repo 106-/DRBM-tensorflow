@@ -103,10 +103,10 @@ class DRBM:
             learninglog.make_log(epoch, "test-error", float(1.-test_accuracy.result()))
             learninglog.make_log(epoch, "test-nloglikelihood", float(test_loss.result()))
 
-            train_loss.reset_states()
-            train_accuracy.reset_states()
-            test_loss.reset_states()
-            test_accuracy.reset_states()
+            train_loss.reset_state()
+            train_accuracy.reset_state()
+            test_loss.reset_state()
+            test_accuracy.reset_state()
     
     def fit_generative(self, train_epoch, data_size, minibatch_size, optimizer, train_ds, gen_drbm, learninglog):
         train_loss = tf.keras.metrics.Mean(name='train_loss')
@@ -132,7 +132,7 @@ class DRBM:
             learninglog.make_log(epoch, "kl-divergence", float(kld))
             learninglog.make_log(epoch, "nloglikelihood", float(train_loss.result()))
 
-            train_loss.reset_states()
+            train_loss.reset_state()
 
     def save(self, filename):
         data_names = ["input_num", "hidden_num", "output_num", "dtype", "activation", "enable_sparse"]
