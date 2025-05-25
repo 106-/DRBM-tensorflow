@@ -40,14 +40,14 @@ class continuous:
         approx_factors_grad = np.array([2/945, 0., -1/45, 0., 1/3, 0.]).astype(input.dtype.as_numpy_dtype())
         ret = tf.where(
             tf.math.abs(input) < 1e-3,
-            tf.math.polyval(approx_factors, input),
+            tf.math.polyval(list(approx_factors), input),
             tf.math.log(2*tf.math.sinh(input)/input)
         )
         @tf.function
         def grad(dy):
             return dy * tf.where(
                 tf.math.abs(input) < 1e-3,
-                tf.math.polyval(approx_factors_grad, input),
+                tf.math.polyval(list(approx_factors_grad), input),
                 (1/tf.math.tanh(input) - 1/input)
             )
         return ret, grad
@@ -75,13 +75,13 @@ class continuous_sparse:
             )
         ret = tf.where(
             tf.abs(x) < 1e-3,
-            tf.math.polyval(approx_factors, x),
+            tf.math.polyval(list(approx_factors), x),
             ret
         )
         def grad(dy):
             r = tf.where(
                 tf.abs(x) < 1e-3,
-                tf.math.polyval(approx_factors_grad, x),
+                tf.math.polyval(list(approx_factors_grad), x),
                 1/tf.tanh(x) - 1/x -1
             )
             grad_ret = dy * ret * r

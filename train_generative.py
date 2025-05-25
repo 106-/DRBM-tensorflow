@@ -23,10 +23,12 @@ dtype = config["dtype"]
 
 gen_drbm = DRBM(*config["generative-layers"], **config["generative-args"], dtype=dtype, random_bias=True)
 x_train, y_train = gen_drbm.stick_break(config["datasize"])
-y_train = to_categorical(y_train, dtype=dtype)
+num_classes = tf.cast(tf.reduce_max(y_train) + 1, dtype=tf.int32)
+y_train = to_categorical(y_train, num_classes=num_classes)
+y_train = tf.cast(y_train, dtype=dtype)
 
 train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-optimizer = tf.keras.optimizers.Adamax(learning_rate=0.002, epsilon=1e-8)
+optimizer = tf.keras.optimizers.Adamax(learning_rate=0.002, epsilon=1e-07)
 
 drbm = DRBM(*config["training-layers"], **config["training-args"], dtype=dtype)
 drbm.fit_generative(args.learning_epoch, config["datasize"], config["minibatch-size"], optimizer, train_ds, gen_drbm, ll)
