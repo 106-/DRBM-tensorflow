@@ -107,12 +107,13 @@ $ ./train_mnist.py (設定ファイルへのパス) (学習エポック数)
 |            `double` |                  {-1, +1} |       [3]で提案 |
 |            `triple` |               {-1, 0, +1} |       [3]で提案 |
 |        `continuous` |                  [-1, +1] |       [3]で提案 |
-|             `esrbm` |      {0, 1} & スパース項 |       [4]で提案 |
-|     `triple_sparse` | {-1, 0, +1} & スパース項 | [IPSJ 2020](https://www.ipsj.or.jp/event/taikai/82/index.html)で提案 |
-| `continuous_sparse` |    [-1, +1] & スパース項 | [IPSJ 2020](https://www.ipsj.or.jp/event/taikai/82/index.html)で提案 |
+|             `esrbm` |      {0, 1} & スパース項 |          [4]で提案 |
+|     `triple_sparse` | {-1, 0, +1} & スパース項 |          [5]で提案 |
+| `continuous_sparse` |    [-1, +1] & スパース項 |          [5]で提案 |
 
 # 参考文献
 - [1]: H. Larochelle and Y. Bengio: [Classification using discriminative restricted boltzmann machines](http://www.dmi.usherb.ca/~larocheh/publications/icml-2008-discriminative-rbm.pdf), Proceedings of the Twenty-fifth International Conference on Machine Learning (ICML'08), pp. 536–543, 2008.
 - [2]: H. Larochelle, M. Mandel, R. Pascanu, and Y. Bengio: [Learning algorithms for the classification restricted boltzmann machine](http://www.jmlr.org/papers/volume13/larochelle12a/larochelle12a.pdf), The Journal of Machine Learning Research, Vol. 13, No. 1, pp. 643–669, mar 2012.
 - [3]: Y. Yokoyama, T. Katsumata and M. Yasuda: [Restricted Boltzmann Machine with Multivalued Hidden Variables: a model suppressing over-fitting](https://arxiv.org/pdf/1811.12587.pdf), The Review of Socionetwork Strategies, Vol.13, no.2, pp.253-266, 2019.
 - [4]: Wei, Jiangshu & Lv, Jiancheng & Yi, Zhang. (2018). A New Sparse Restricted Boltzmann Machine. International Journal of Pattern Recognition and Artificial Intelligence. 33. 10.1142/S0218001419510042. 
+- [5]: M. Yasuda and T. Katsumata: [Discriminative restricted Boltzmann machine with trainable sparsity](https://www.jstage.jst.go.jp/article/nolta/14/2/14_207/_pdf), Nonlinear Theory and Its Applications, IEICE, Vol. 14, no. 2, pp. 207–214, 2023.
