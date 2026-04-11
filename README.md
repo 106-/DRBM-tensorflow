@@ -1,6 +1,8 @@
 DRBM-tensorflow
 ===
 
+[日本語説明](README.ja.md)
+
 TensorFlowによる制限ボルツマンマシン分類器(Discriminative-RBM; DRBM a.k.a. Classification RBM; ClassRBM)の実装.
 
 An implementation of discriminative restricted Boltzmann machine (DRBM or Classification RBM; Class RBM) using TensorFlow.
