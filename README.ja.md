@@ -4,18 +4,19 @@ DRBM-tensorflow
 TensorFlowによる制限ボルツマンマシン分類器(Discriminative-RBM; DRBM a.k.a. Classification RBM; ClassRBM)の実装.
 
 # セットアップ & モジュールインストール
-_Python 3.12 くらいが必要_
+_Python 3.12 と [uv](https://docs.astral.sh/uv/) が必要_
 ```
 $ git clone https://github.com/106-/DRBM-tensorflow.git
 $ cd DRBM-tensorflow
 ```
-サブモジュールのクローン
-```
-$ git submodule update --init --recursive
-```
 必要モジュールのインストール
 ```
-$ pip install -r ./requirements.txt
+$ uv sync
+```
+
+スクリプトの実行:
+```
+$ uv run python train_mnist.py (設定ファイルへのパス) (学習エポック数)
 ```
 
 # 基本的な使用方法
@@ -52,7 +53,7 @@ $ pip install -r ./requirements.txt
 ```
 このような設定ファイルでプログラムを実行するには：
 ```
-$ ./train_generative.py (設定ファイルへのパス) (学習エポック数)
+$ uv run python train_generative.py (設定ファイルへのパス) (学習エポック数)
 ```
 設定ファイルの例は `./config/generative` にあります。
 
@@ -90,7 +91,7 @@ $ ./train_generative.py (設定ファイルへのパス) (学習エポック数)
 ```
 このような設定ファイルでプログラムを実行するには：
 ```
-$ ./train_mnist.py (設定ファイルへのパス) (学習エポック数)
+$ uv run python train_mnist.py (設定ファイルへのパス) (学習エポック数)
 ```
 設定ファイルの例は `./config/mnist` にあります。
 
