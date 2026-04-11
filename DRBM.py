@@ -200,16 +200,35 @@ class DRBM:
             optimizer.apply_gradients(zip(grads, self.params))
             train_loss(loss)
 
-        for epoch in range(train_epoch):
+        def _arrow(cur, prev_val):
+            if prev_val is None:
+                return ""
+            if cur > prev_val:
+                return "↑"
+            elif cur < prev_val:
+                return "↓"
+            return ""
+
+        prev = {"loss": None, "kld": None}
+        pbar = tqdm(range(train_epoch), desc="Epoch")
+        for epoch in pbar:
             for images, labels in train_ds.shuffle(data_size).batch(minibatch_size):
                 train(images, labels)
             kld = self._kl_divergence(gen_drbm)
 
-            template = "Epoch {}, Loss: {}, KL-Divergence: {}"
-            print(template.format(epoch + 1, train_loss.result(), kld))
+            loss = float(train_loss.result())
+            kld_val = float(kld)
 
-            learninglog.make_log(epoch, "kl-divergence", float(kld))
-            learninglog.make_log(epoch, "nloglikelihood", float(train_loss.result()))
+            pbar.set_postfix(
+                {
+                    "loss": f"{loss:.4f}{_arrow(loss, prev['loss'])}",
+                    "kld": f"{kld_val:.4f}{_arrow(kld_val, prev['kld'])}",
+                }
+            )
+            prev = {"loss": loss, "kld": kld_val}
+
+            learninglog.make_log(epoch, "kl-divergence", kld_val)
+            learninglog.make_log(epoch, "nloglikelihood", loss)
 
             train_loss.reset_state()
 
