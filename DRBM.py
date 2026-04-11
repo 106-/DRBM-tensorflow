@@ -1,6 +1,7 @@
 import json
 
 import tensorflow as tf
+from tqdm import tqdm
 
 import hidden_marginalize
 
@@ -127,24 +128,37 @@ class DRBM:
             test_loss(loss)
             test_accuracy(labels, predict_probs)
 
-        for epoch in range(train_epoch):
+        def _arrow(cur, prev_val):
+            if prev_val is None:
+                return ""
+            if cur > prev_val:
+                return "↑"
+            elif cur < prev_val:
+                return "↓"
+            return ""
+
+        prev = {"loss": None, "acc": None, "val_loss": None, "val_acc": None}
+        pbar = tqdm(range(train_epoch), desc="Epoch")
+        for epoch in pbar:
             for images, labels in train_ds.shuffle(data_size).batch(minibatch_size):
                 train(images, labels)
             for test_images, test_labels in test_ds:
                 test(test_images, test_labels)
 
-            template = (
-                "Epoch {}, Loss: {}, Accuracy: {}, Test Loss: {}, Test Accuracy: {}"
+            loss = float(train_loss.result())
+            acc = float(train_accuracy.result() * 100)
+            val_loss = float(test_loss.result())
+            val_acc = float(test_accuracy.result() * 100)
+
+            pbar.set_postfix(
+                {
+                    "loss": f"{loss:.4f}{_arrow(loss, prev['loss'])}",
+                    "acc": f"{acc:.2f}%{_arrow(acc, prev['acc'])}",
+                    "val_loss": f"{val_loss:.4f}{_arrow(val_loss, prev['val_loss'])}",
+                    "val_acc": f"{val_acc:.2f}%{_arrow(val_acc, prev['val_acc'])}",
+                }
             )
-            print(
-                template.format(
-                    epoch + 1,
-                    train_loss.result(),
-                    train_accuracy.result() * 100,
-                    test_loss.result(),
-                    test_accuracy.result() * 100,
-                )
-            )
+            prev = {"loss": loss, "acc": acc, "val_loss": val_loss, "val_acc": val_acc}
 
             learninglog.make_log(
                 epoch, "train-error", float((1.0 - train_accuracy.result()))
