@@ -6,18 +6,19 @@ TensorFlowによる制限ボルツマンマシン分類器(Discriminative-RBM; D
 An implementation of discriminative restricted Boltzmann machine (DRBM or Classification RBM; Class RBM) using TensorFlow.
 
 # Setup & Module Installation
-_requires Python 3.12_
+_requires Python 3.12 and [uv](https://docs.astral.sh/uv/)_
 ```
 $ git clone https://github.com/106-/DRBM-tensorflow.git
 $ cd DRBM-tensorflow
 ```
-Cloning submodules
-```
-$ git submodule update --init --recursive
-```
 Installing required modules
 ```
-$ pip install -r ./requirements.txt
+$ uv sync
+```
+
+To run a script:
+```
+$ uv run python train_mnist.py (path to setting file) (learning epoch)
 ```
 
 # Basic Usage
@@ -54,7 +55,7 @@ The configuration file must describe:
 ```
 With such a configuration file, the program runs as
 ```
-$ ./train_generative.py (path to setting file) (learning epoch)
+$ uv run python train_generative.py (path to setting file) (learning epoch)
 ```
 There are some examples of configuration files in `./config/generative`.
 
@@ -92,7 +93,7 @@ In addition to the artificial data learning configuration file, you can set the 
 ```
 With such a configuration file, the program runs as
 ```
-$ ./train_mnist.py (path to setting file) (learning epoch)
+$ uv run python train_mnist.py (path to setting file) (learning epoch)
 ```
 There are some examples of configuration files in `./config/mnist`.
 
