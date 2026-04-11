@@ -1,5 +1,5 @@
 {
-    "training-layers": [1024, 1600, 10],
+    "training-layers": [3072, 1600, 10],
     "training-args": {
         "activation": "continuous_sparse"
     },
