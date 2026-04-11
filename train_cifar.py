@@ -48,14 +48,13 @@ args = parser.parse_args()
 config = json.load(open(args.learning_config, "r"))
 ll = LearningLog(config)
 
-y_test, x_test = np.split(np.loadtxt("./test.csv", delimiter=","), [1], 1)
-y_train, x_train = np.split(np.loadtxt("./train.csv", delimiter=","), [1], 1)
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
 
 dtype = config["dtype"]
-y_test = to_categorical(y_test).astype(dtype)
+x_train = x_train.reshape(-1, 3072).astype(dtype) / 255.0
+x_test = x_test.reshape(-1, 3072).astype(dtype) / 255.0
 y_train = to_categorical(y_train).astype(dtype)
-x_test = x_test.astype(dtype) / 255.0
-x_train = x_train.astype(dtype) / 255.0
+y_test = to_categorical(y_test).astype(dtype)
 
 if "learning_data_limit" in config:
     idx = np.random.choice(np.arange(0, len(x_train)), size=len(x_train), replace=False)
